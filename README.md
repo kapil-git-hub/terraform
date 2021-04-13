@@ -1,6 +1,6 @@
 # Terraform-Project
 
-## This terraform project creates :
+This terraform project creates :
 1. Custom vpc and all required dependencies i.e. subnet, internet gateway, security group, rout table and etc.
 2. Multiple dev/prod instances as per your choice with software provisioning (i.e. install nginx server).
 
