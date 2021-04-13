@@ -2,7 +2,7 @@
 #Resource key pair
 resource "aws_key_pair" "levelup_key" {
   key_name      = "levelup_key"
-  public_key    = file(var.public_key_path)
+  public_key    = file(var.PATH_TO_PUBLIC_KEY)
 }
 
 #Secutiry Group for Instances
@@ -25,6 +25,20 @@ resource "aws_security_group" "allow-ssh" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   tags = {
     Name         = "allow-ssh"
     Environmnent = var.ENVIRONMENT
@@ -35,7 +49,7 @@ resource "aws_security_group" "allow-ssh" {
 resource "aws_instance" "my-instance" {
   ami           = lookup(var.AMIS, var.AWS_REGION)
   instance_type = var.INSTANCE_TYPE
-
+  count         =  var.INSTANCE_COUNT > 1 ? var.INSTANCE_COUNT : 1
   # the VPC subnet
   subnet_id = element(var.PUBLIC_SUBNETS, 0)
   availability_zone = "${var.AWS_REGION}a"
@@ -47,7 +61,27 @@ resource "aws_instance" "my-instance" {
   key_name = aws_key_pair.levelup_key.key_name
 
   tags = {
-    Name         = "instance-${var.ENVIRONMENT}"
+    Name         = "instance-${var.ENVIRONMENT}-${count.index + 1}"
     Environmnent = var.ENVIRONMENT
+  }
+
+  provisioner "file" {
+    source = "${path.module}/installNginx.sh"
+    destination = "/tmp/installNginx.sh"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "chmod +x /tmp/installNginx.sh",
+      "sudo sed -i -e 's/\r$//' /tmp/installNginx.sh",  # Remove the spurious CR characters.
+      "sudo /tmp/installNginx.sh",
+    ]
+  }
+
+  connection {
+    host        = coalesce(self.public_ip, self.private_ip)
+    type        = "ssh"
+    user        = var.INSTANCE_USERNAME
+    private_key = file(var.PATH_TO_PRIVATE_KEY)
   }
 }

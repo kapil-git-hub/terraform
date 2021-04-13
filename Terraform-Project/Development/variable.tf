@@ -7,3 +7,8 @@ variable "Env" {
     type    = string
     default = "development"
 }
+
+variable "Inst_count" {
+    type    = number
+    default = 3
+}

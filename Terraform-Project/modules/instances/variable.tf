@@ -1,7 +1,15 @@
 # Variable for Create Instance Module
-variable "public_key_path" {
+variable "PATH_TO_PUBLIC_KEY" {
   description = "Public key path"
   default = "~/.ssh/levelup_key.pub"
+}
+
+variable "PATH_TO_PRIVATE_KEY" {
+  default = "~/.ssh/levelup_key"
+}
+
+variable "INSTANCE_USERNAME" {
+  default = "ubuntu"
 }
 
 variable "VPC_ID" {
@@ -14,8 +22,13 @@ variable "ENVIRONMENT" {
     default = ""
 }
 
+variable "INSTANCE_COUNT" {
+    type    = number
+    default = "1"
+}
+
 variable "AWS_REGION" {
-default = "us-east-2"
+    default = "us-east-2"
 }
 
 variable "AMIS" {

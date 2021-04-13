@@ -9,7 +9,8 @@ module "dev-vpc" {
 
 module "dev-instances" {
     source          = "../modules/instances"
-
+    
+    INSTANCE_COUNT  = var.Inst_count
     ENVIRONMENT     = var.Env
     AWS_REGION      = var.AWS_REGION 
     VPC_ID          = module.dev-vpc.my_vpc_id
